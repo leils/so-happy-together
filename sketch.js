@@ -1,12 +1,19 @@
-// https://kylemcdonald.github.io/cv-examples/
-// https://github.com/kylemcdonald/AppropriatingNewTechnologies/wiki/Week-2
-
 var capture;
-var tracker
 var w = 640,
     h = 480;
 
-function setup() {
+var detector;
+var classifier = objectdetect.frontalface;
+
+var frameNum = 0;
+
+var faces = [];
+var faceCount = 0;
+
+function setupDetector() {
+    var scaleFactor = 1.2;
+    detector = new objectdetect.detector(w, h, scaleFactor, classifier);
+
     capture = createCapture({
         audio: false,
         video: {
@@ -22,41 +29,33 @@ function setup() {
     capture.hide();
 
     colorMode(HSB);
+}
 
-    tracker = new clm.tracker();
-    tracker.init();
-    tracker.start(capture.elt);
+function setup() {
+  setupDetector();
+
+  setInterval(countFaces, 3000);
 }
 
 function draw() {
-    image(capture, 0, 0, w, h);
-    var positions = tracker.getCurrentPosition();
+  frameNum++;
 
-    noFill();
-    stroke(255);
-    beginShape();
-    for (var i = 0; i < positions.length; i++) {
-        vertex(positions[i][0], positions[i][1]);
-    }
-    endShape();
+  print(faceCount);
+}
 
-    noStroke();
-    for (var i = 0; i < positions.length; i++) {
-        fill(map(i, 0, positions.length, 0, 360), 50, 100);
-        ellipse(positions[i][0], positions[i][1], 4, 4);
-        text(i, positions[i][0], positions[i][1]);
-    }
+function countFaces() {
+  // Get the latest frame of the video as an image
+  var video = capture.elt;
+  var canvas = document.createElement('canvas');
+  canvas.height = video.videoHeight;
+  canvas.width = video.videoWidth;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  var img = new Image();
+  img.src = canvas.toDataURL();
 
-    if (positions.length > 0) {
-        var mouthLeft = createVector(positions[44][0], positions[44][1]);
-        var mouthRight = createVector(positions[50][0], positions[50][1]);
-        var smile = mouthLeft.dist(mouthRight);
-        // uncomment the line below to show an estimate of amount "smiling"
-        // rect(20, 20, smile * 3, 20);
-
-        // uncomment for a surprise
-        // noStroke();
-        // fill(0, 255, 255);
-        // ellipse(positions[62][0], positions[62][1], 50, 50);
-    }
+  // Detect the number of faces in that frame
+  faces = detector.detect(img);
+  var validFaces = faces.filter(face => face[4] > 4);
+  facesCount = validFaces.length;
 }
