@@ -61,7 +61,7 @@ function setupDetector() {
         console.log('capture ready.')
     });
     capture.elt.setAttribute('playsinline', '');
-    createCanvas(w, h);
+    createCanvas(windowWidth, windowHeight);
     capture.size(w, h);
     capture.hide();
 
@@ -77,28 +77,28 @@ function setup() {
 
     flock = new Flock();
     // Add an initial set of boids into the system
-    for (let i = 0; i < 100; i++) {
-      let b = new Boid(width / 2,height / 2);
+    for (let i = 0; i < 20; i++) {
+      let b = new Boid(random(w),random(h));
       flock.addBoid(b);
     }
   setupDetector();
-  frameRate(24);
 
-  var newCircle = new CircleStruct;
-  elements.push(newCircle);
-
+  // var newCircle = new CircleStruct;
+  // elements.push(newCircle);
+  //
   setInterval(countFaces, 3000);
 }
 
 function draw() {
-  background(51);
-  if (faceCount>1, flock.run());
-  image(capture, 0, 0, w, h);
+  background(255);
+  fill(0);
   text(`faces visible: ${faceCount}`, 10, 20);
 
-  elements.forEach(circ => {
-     circ.draw();
-  });
+  flock.run()
+  //
+  // elements.forEach(circ => {
+  //    circ.draw();
+  // });
 }
 
 function countFaces() {
@@ -140,14 +140,21 @@ function Boid(x, y) {
   this.acceleration = createVector(0, 0);
   this.velocity = createVector(random(-1, 1), random(-1, 1));
   this.position = createVector(x, y);
-  this.r = 3.0;
+  this.r = 10.0;
   this.maxspeed = 3;    // Maximum speed
   this.maxforce = 0.05; // Maximum steering force
+  this.color = {
+    r: random(255),
+    g: random(255),
+    b: random(255)
+  }
 }
 
 Boid.prototype.run = function(boids) {
   this.flock(boids);
-  this.update();
+  if (faceCount > 1) {
+    this.update();
+  }
   this.borders();
   this.render();
 }
@@ -199,8 +206,8 @@ Boid.prototype.seek = function(target) {
 Boid.prototype.render = function() {
   // Draw a triangle rotated in the direction of velocity
   let theta = this.velocity.heading() + radians(90);
-  fill(127);
-  stroke(200);
+  fill(this.color.r, this.color.g, this.color.b);
+  stroke(this.color.r, this.color.g, this.color.b);
   push();
   translate(this.position.x, this.position.y);
   rotate(theta);
