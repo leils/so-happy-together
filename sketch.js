@@ -17,8 +17,8 @@ class CircleStruct {
     this.radius = 50;
     this.x = x || random(this.radius, width - this.radius);
     this.y = y || random(this.radius, height - this.radius);
-    this.xInc = 1;
-    this.yInc = 1;
+    this.xInc = 5;
+    this.yInc = 5;
 
   }
 
@@ -81,11 +81,8 @@ function setup() {
 }
 
 function draw() {
-  // image(capture, 0, 0, w, h);
-  text(`faces visible: ${faceCount}`, 10, 20);
-
-
   background(51);
+  text(`faces visible: ${faceCount}`, 10, 20);
 
   elements.forEach(circ => {
      circ.draw();
